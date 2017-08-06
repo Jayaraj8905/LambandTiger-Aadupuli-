@@ -1,0 +1,201 @@
+.forest{
+	background: url('../images/forest.jpg') no-repeat;
+}
+
+.wrapper{
+	width: 632px;
+	margin: 0 auto;
+}
+
+#information{
+	width: 100%;
+	height: 120px;
+}
+
+#information .infounit{
+	width: 50%;
+	float: left;
+	visibility: hidden;
+}
+
+.live #information .infounit{
+	visibility: visible;
+}
+
+#information .infounit .image{
+  	width: 35px;
+  	height: 35px;
+  	border-radius: 20px;
+  	background-color: #FFFFFF;
+  	display: block;
+  	float: left;
+}
+
+#information .infounit.lamb .image{
+	background: url('../images/lamb.png') no-repeat;
+  	background-size: 35px 35px;
+}
+
+#information .infounit.deadlamb .image{
+	background: url('../images/lamb.png') no-repeat rgb(244, 85, 85);
+	background-size: 20px 20px;
+	float: right;
+	background-position: center;
+}
+
+#information .infounit .count{
+	float: left;
+	padding:10px;
+}
+
+#information .infounit.deadlamb .count{
+	float: right;
+}
+
+#information .message{
+	text-align: center;
+	font-size: 19px;
+	height: 35px;
+	float: left;
+	width: 100%;
+	color: rgb(34, 205, 34);
+	font-weight: bold;
+}
+
+#information .message div{
+	display: none;
+}
+
+#information .lambdead{
+	color: rgb(221, 32, 32);
+}
+
+#information .tigerwin,#information .lambwin{
+	color: rgb(34, 205, 34);
+}
+
+#information button{
+	background-color: #007dcb;
+	border-bottom: 2px solid #0f1f7a;
+	color: #f7f2f2;
+	text-shadow: 0 -1px 0 #300;
+	margin-left: 43%;
+	width: 10%;
+	font-size: 15px;
+	border: none;
+	padding: 4px 0px;
+	border-radius: 4px;
+	color: #FFFFFF;
+	cursor: pointer;
+}
+
+#information button.start{
+	display: block;	
+}
+
+#information button.reset{
+	display: none;
+}
+
+.live #information button.start{
+	display: none;
+}
+
+.live #information button.reset{
+	display: block;
+}
+
+.timer{
+	margin: 0 auto;
+	width: 632px;
+	text-align: center;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	font-size: 39px;
+	display: none;
+}
+
+.gameHld{
+	background: url('../images/board.png') no-repeat;
+	height: 380px;
+	position: relative;
+	background-size: 1980px 360px;
+}
+
+.eleHld{
+	border: 1px solid grey;
+  	width: 35px;
+  	height: 35px;
+  	position: absolute;
+  	border-radius: 20px;
+  	background-color: #FFFFFF;
+  	cursor: pointer;
+}
+
+.eleHld.tiger{
+	background: url('../images/tiger.png') no-repeat;
+  	background-size: 35px 35px;
+  	border: none;
+}
+
+.eleHld.lamb{
+	background: url('../images/lamb.png') no-repeat;
+  	background-size: 35px 35px;
+  	border: none;
+}
+
+.eleHld.lamb.selectedLamb{
+	background-size: 40px 40px;
+	width: 40px;
+	height: 40px;
+	-webkit-transition: background-size .5s;
+    transition: background-size .5s;
+}
+
+.eleHld.deadlamb{
+	background: url('../images/lamb.png') no-repeat #FFFFFF;
+  	background-size: 10px 10px;
+  	width: 35px;
+  	height: 35px;
+  	-webkit-transition: background-size 2s,background-color 2s; 
+    transition: background-size 2s,background-color 2s;
+    background-position: center center;\
+}
+
+.eleHld.tiger.selectedTiger{
+	background-size: 40px 40px;
+	width: 40px;
+	height: 40px;
+}
+
+.eleHld.row_1{}
+.eleHld.row_2{top: 78px;}
+.eleHld.row_3{top: 160px;}
+.eleHld.row_4{top: 239px;}
+.eleHld.row_5{top: 334px;}
+
+.eleHld.eleNo_1{left: 286px;}
+.eleHld.eleNo_2{left: 92px;}
+.eleHld.eleNo_3{left: 219px;}
+.eleHld.eleNo_4{left: 264px;}
+.eleHld.eleNo_5{left: 302px;}
+.eleHld.eleNo_6{left: 348px;}
+.eleHld.eleNo_7{left: 469px;}
+.eleHld.eleNo_8{left: 39px;}
+.eleHld.eleNo_9{left: 162px;}
+.eleHld.eleNo_10{left: 242px;}
+.eleHld.eleNo_11{left: 320px;}
+.eleHld.eleNo_12{left: 397px;}
+.eleHld.eleNo_13{left: 519px;}
+.eleHld.eleNo_14{left: -7px;}
+.eleHld.eleNo_15{left: 109px;}
+.eleHld.eleNo_16{left: 226px;}
+.eleHld.eleNo_17{left: 338px;}
+.eleHld.eleNo_18{left: 451px;}
+.eleHld.eleNo_19{left: 573px;}
+.eleHld.eleNo_20{left: 51px;}
+.eleHld.eleNo_21{left: 207px;}
+.eleHld.eleNo_22{left: 359px;}
+.eleHld.eleNo_23{left: 512px;}
+
+

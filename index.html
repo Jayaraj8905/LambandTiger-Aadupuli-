@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>AaduPuli Attam</title>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta content="IE=EmulateIE7; IE=EmulateIE8" http-equiv="X-UA-Compatible">
+
+    <link rel="stylesheet" type="text/css" href="css/game.css">
+
+    <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/game.js"></script>
+</head>
+
+<body>
+    <div class="page wrapper">
+        <div id="information">
+            <div class="infounit lamb">
+                <span class="image"></span>
+                <span class="count"></p>
+            </div>
+            <div class="infounit deadlamb">
+                <span class="image"></span>
+                <span class="count"></span>
+            </div>
+            <div class="message">
+                <div class="lambdead">Oops! Tiger ate the lamb.......</div>
+                <div class="tigerwin">Oops! Tiger Wins...</div>
+                <div class="lambwin">Wow! Lamb Block the Tiger...</div>
+            </div>
+            <button class="start">Start</button>
+            <button class="reset">Reset</button>
+        </div>
+        <div class="timer"><span class="min"></span>:<span class="sec"></span></div>
+        <div class="gameHld type1" id="board">
+            <span class="eleHld eleNo_1 row_1"></span>
+            <span class="eleHld eleNo_2 row_2"></span>
+            <span class="eleHld eleNo_3 row_2"></span>
+            <span class="eleHld eleNo_4 row_2"></span>
+            <span class="eleHld eleNo_5 row_2"></span>
+            <span class="eleHld eleNo_6 row_2"></span>
+            <span class="eleHld eleNo_7 row_2"></span>
+            <span class="eleHld eleNo_8 row_3"></span>
+            <span class="eleHld eleNo_9 row_3"></span>
+            <span class="eleHld eleNo_10 row_3"></span>
+            <span class="eleHld eleNo_11 row_3"></span>
+            <span class="eleHld eleNo_12 row_3"></span>
+            <span class="eleHld eleNo_13 row_3"></span>
+            <span class="eleHld eleNo_14 row_4"></span>
+            <span class="eleHld eleNo_15 row_4"></span>
+            <span class="eleHld eleNo_16 row_4"></span>
+            <span class="eleHld eleNo_17 row_4"></span>
+            <span class="eleHld eleNo_18 row_4"></span>
+            <span class="eleHld eleNo_19 row_4"></span>
+            <span class="eleHld eleNo_20 row_5"></span>
+            <span class="eleHld eleNo_21 row_5"></span>
+            <span class="eleHld eleNo_22 row_5"></span>
+            <span class="eleHld eleNo_23 row_5"></span>
+        </div>
+        <div id="rules">
+            <h2>Rules</h2>
+            <ul>
+                <li><p>There are only 3 tigers, 15 goats, and 23 positions</p></li>
+                <li><p>3 Tigers initially placed into hrn, c2 and c3 positions</p></li>
+                <li><p>15 goats enter one by one and then they can also move
+</p></li>
+                <li><p>Goats and Tigers can move to next right, left, top, down positions but not across</p></li>
+                <li><p>Tigers can kill adjacent Goats by jumping next to it, so this "jumping to" location should be empty</p></li>
+                <li><p>Alternate moves for characters</p></li>
+                <li><p>Goats should try to block all tigers</p></li>
+                <li><p>Tigers should try to kill Goats, and be on the move</p></li>
+                <li><p>If 5 goats are killed then it is considered as a win for tigers, because 10 goats are too few to block all tigers</p></li>
+                <li><p>More goats on the field, more chances are there for goats to win</p></li>
+<!--                 <li><p>It would be very difficult for beginner, intermediate and expert goats to win the game, if they loose 2, 4, 6 of them respectively</p></li> -->
+                <li><p>UNDO is not possible</p></li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
