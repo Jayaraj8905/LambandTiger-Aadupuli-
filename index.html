@@ -15,8 +15,8 @@
 </head>
 
 <body>
-    <div class="page wrapper">
-        <div id="information">
+    <div class="page">
+        <div id="information" class="wrapper">
             <div class="infounit lamb">
                 <span class="image"></span>
                 <span class="count"></p>
@@ -33,8 +33,10 @@
             <button class="start">Start</button>
             <button class="reset">Reset</button>
         </div>
-        <div class="timer"><span class="min"></span>:<span class="sec"></span></div>
-        <div class="gameHld type1" id="board">
+        <div class="timer wrapper"><span class="min"></span>:<span class="sec"></span></div>
+        <div id="board">
+            <canvas id="playerBoardCanvas">
+            </canvas>
             <span class="eleHld eleNo_1 row_1"></span>
             <span class="eleHld eleNo_2 row_2"></span>
             <span class="eleHld eleNo_3 row_2"></span>
@@ -59,7 +61,7 @@
             <span class="eleHld eleNo_22 row_5"></span>
             <span class="eleHld eleNo_23 row_5"></span>
         </div>
-        <div id="rules">
+        <div id="rules" class="wrapper">
             <h2>Rules</h2>
             <ul>
                 <li><p>There are only 3 tigers, 15 goats, and 23 positions</p></li>
