@@ -1,3 +1,46 @@
+html, body, .page {
+	height: 100%;
+}
+
+.hide {
+	display: none;
+}
+
+#userForm {
+	height: 100%;
+	width: calc(100% - 20px);
+	margin: 0px 10px;
+	flex-direction: column;
+  height: 100%;
+  display: flex;
+	align-items: center;
+  place-content: center center;
+}
+
+#userForm input{
+	width: 100%;
+	height: 30px;
+	border: 0px;
+	border-bottom: 1px solid gray;
+	margin-bottom: 20px;
+	outline: none;
+}
+
+#userForm button{
+	width: 100%;
+	background-color: #007dcb;
+	border-bottom: 2px solid #0f1f7a;
+	color: #f7f2f2;
+	text-shadow: 0 -1px 0 #300;
+	font-size: 15px;
+	border: none;
+	padding: 4px 0px;
+	border-radius: 4px;
+	color: #FFFFFF;
+	cursor: pointer;
+	height: 30px;
+}
+
 .forest{
 	background: url('../images/forest.jpg') no-repeat;
 }
@@ -9,7 +52,6 @@
 
 #information{
 	width: 100%;
-	height: 120px;
 }
 
 #information .infounit{
@@ -74,34 +116,50 @@
 	color: rgb(34, 205, 34);
 }
 
-#information button{
+#buttonsHld {
+	display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  place-content: center;
+  margin: 16px auto;
+}
+
+#buttonsHld button{
 	background-color: #007dcb;
 	border-bottom: 2px solid #0f1f7a;
-	color: #f7f2f2;
 	text-shadow: 0 -1px 0 #300;
-	margin-left: 45%;
-	width: 10%;
 	font-size: 15px;
 	border: none;
-	padding: 4px 0px;
+	padding: 4px 8px;
 	border-radius: 4px;
 	color: #FFFFFF;
 	cursor: pointer;
+	margin: 8px;
+	width: 100%;
 }
 
-#information button.start{
-	display: block;	
+#buttonsHld button.start{
+	display: block;
 }
 
-#information button.reset{
+#buttonsHld button.startonline{
+	display: block;
+}
+
+#buttonsHld button.reset{
 	display: none;
 }
 
-.live #information button.start{
+.live #buttonsHld button.start{
 	display: none;
 }
 
-.live #information button.reset{
+.live #buttonsHld button.startonline{
+	display: none;
+}
+
+.live #buttonsHld button.reset{
 	display: block;
 }
 
@@ -141,7 +199,7 @@
 
 .eleHld.deadlamb{
 	background: url('../images/lamb.png') no-repeat #FFFFFF;
-  	-webkit-transition: background-size 2s,background-color 2s; 
+  	-webkit-transition: background-size 2s,background-color 2s;
     transition: background-size 2s,background-color 2s;
     background-position: center center;
 }
@@ -196,14 +254,23 @@
 	height: 30px;
 }
 
-@media (min-width:961px)  { 
+@media (min-width:961px)  {
+	#userForm {
+		width: 60%;
+		margin: 0 auto;
+	}
+
 	#board {
 		width: 60%;
 		margin: 0 auto;
 	}
 
+	#buttonsHld {
+		width: 15%;
+	}
+
 	.wrapper {
-		width: 60%;	
+		width: 60%;
 	}
 
 	/*Width and Height Configuration in Desktop Mode*/
@@ -241,5 +308,3 @@
 		height: 40px;
 	}
 }
-
-

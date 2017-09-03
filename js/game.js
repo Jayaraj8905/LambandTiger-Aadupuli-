@@ -1,241 +1,11 @@
-var lambtigerObj;
-var playerBoardObj;
-var gameObj;
-$(document).ready(function(){
-	gameObj = new game();
-	gameObj.init();
-	playerBoardObj = new playerBoard();
-});
-
-var line = (function(x1, y1, x2, y2) {
-	this.x1 = x1;
-	this.y1 = y1;
-	this.x2 = x2;
-	this.y2 = y2;
-	this.draw = function() {
-
-		var dfd = jQuery.Deferred();
-
-		setTimeout(function() {
-			playerBoardObj.ctx.moveTo(x1, y1);
-			playerBoardObj.ctx.lineTo(x2, y2);
-			playerBoardObj.ctx.stroke();
-			dfd.resolve();
-		}, 100);
-		
-
-		return dfd.promise();
-	}
-})
-
-var circle = (function(index, line1, line2) {
-	this.index = index;
-	this.line1 = line1;
-	this.line2 = line2;
-})
-
-
-var playerBoard = (function(){
-	var width;
-	var height;
-	var circleWidth;
-	var circleRadius;
-	var lineObjs;
-	var circleObjs;
-	this.ctx;	
-	playerBoardHld = $('#board');
-
-	function setCirclePosition(index, line1Obj, line2Obj) {
-		var intersectionPoint = checkLineIntersection(line1Obj.x1, line1Obj.y1, line1Obj.x2, line1Obj.y2,
-														line2Obj.x1, line2Obj.y1, line2Obj.x2, line2Obj.y2); 
-
-		var indexes = {
-			x: intersectionPoint.x - circleRadius,
-			y: intersectionPoint.y - circleRadius,
-		}
-		$(playerBoardHld).find('.eleNo_'+index).css({'left' : indexes.x + 'px', 'top' : indexes.y + 'px', 'display': 'inline'});
-	}
-
-	function checkLineIntersection(line1StartX, line1StartY, line1EndX, line1EndY, line2StartX, line2StartY, line2EndX, line2EndY) {
-	    // if the lines intersect, the result contains the x and y of the intersection (treating the lines as infinite) and booleans for whether line segment 1 or line segment 2 contain the point
-	    var denominator, a, b, numerator1, numerator2, result = {
-	        x: null,
-	        y: null,
-	        onLine1: false,
-	        onLine2: false
-	    };
-	    denominator = ((line2EndY - line2StartY) * (line1EndX - line1StartX)) - ((line2EndX - line2StartX) * (line1EndY - line1StartY));
-	    if (denominator == 0) {
-	        return result;
-	    }
-	    a = line1StartY - line2StartY;
-	    b = line1StartX - line2StartX;
-	    numerator1 = ((line2EndX - line2StartX) * a) - ((line2EndY - line2StartY) * b);
-	    numerator2 = ((line1EndX - line1StartX) * a) - ((line1EndY - line1StartY) * b);
-	    a = numerator1 / denominator;
-	    b = numerator2 / denominator;
-
-	    // if we cast these lines infinitely in both directions, they intersect here:
-	    result.x = line1StartX + (a * (line1EndX - line1StartX));
-	    result.y = line1StartY + (a * (line1EndY - line1StartY));
-		/*
-	        // it is worth noting that this should be the same as:
-	        x = line2StartX + (b * (line2EndX - line2StartX));
-	        y = line2StartX + (b * (line2EndY - line2StartY));
-	        */
-	    // if line1 is a segment and line2 is infinite, they intersect if:
-	    if (a > 0 && a < 1) {
-	        result.onLine1 = true;
-	    }
-	    // if line2 is a segment and line1 is infinite, they intersect if:
-	    if (b > 0 && b < 1) {
-	        result.onLine2 = true;
-	    }
-	    // if line1 and line2 are segments, they intersect if both of the above are true
-	    return result;
-	};
-
-	function initLineDraw(lineNo) {
-		if (!lineNo) {
-			lineNo = 0;
-		}
-		var dfd = jQuery.Deferred();
-		
-		$.when(lineObjs[lineNo].draw()).then(function() {
-			lineNo++;
-			if (lineNo == lineObjs.length) {
-				dfd.resolve();
-			}
-			else {
-				$.when(initLineDraw(lineNo)).then(function() {
-					dfd.resolve();
-				})	
-			}
-			
-		})
-		return dfd.promise();
-	}
-
-	function drawCircle(circleNo) {
-		if (!circleNo) {
-			circleNo = 0;
-		}
-		var dfd = jQuery.Deferred();
-
-		setTimeout(function() {
-			// draw here
-			setCirclePosition(circleObjs[circleNo].index, circleObjs[circleNo].line1, circleObjs[circleNo].line2);
-			circleNo++;
-			if (circleNo == circleObjs.length) {
-				dfd.resolve();
-			}
-			else {
-				$.when(drawCircle(circleNo)).then(function() {
-					dfd.resolve();
-				})	
-			}
-		}, 20)
-		return dfd.promise();
-	}
-
-	this.draw = function(){
-		if (isMobile()) {
-			circleWidth = 20;
-			circleRadius = circleWidth/2;
-			// var ratio = window.devicePixelRatio || 1;
-			width = playerBoardHld.width();
-			height = screen.height/2;
-			// width = screen.width - circleWidth;
-			
-		} else {
-			circleWidth = 35;
-			circleRadius = circleWidth/2;
-			width = playerBoardHld.width();
-			var height = width/2;
-		}
-		
-		var playerBoardCanvas = document.getElementById("playerBoardCanvas");
-		playerBoardCanvas.width = width;
-		playerBoardCanvas.height = height;
-		this.ctx = playerBoardCanvas.getContext("2d");
-
-		var hDiv = width/5;
-		var vDiv = height/4;
-		var startPoint = width/2;
-
-		lineObjs = [
-			new line(startPoint, 0, hDiv*1, height),
-			new line(startPoint, 0, hDiv*2, height),
-			new line(startPoint, 0, hDiv*3, height),
-			new line(startPoint, 0, hDiv*4, height),
-			new line(0, vDiv*1.5, 0, vDiv*3.1),
-			new line(width, vDiv*1.5, width, vDiv*3.1),
-			new line(0, vDiv*1.5, width, vDiv*1.5),
-			new line(0, vDiv*2.3, width, vDiv*2.3),
-			new line(0, vDiv*3.1, width, vDiv*3.1),
-			new line(hDiv*1, height-1, hDiv*4, height-1)
-		]
-
-		circleObjs = [
-			new circle(1, lineObjs[0], lineObjs[1]),
-
-			new circle(2, lineObjs[4], lineObjs[6]),
-			new circle(3, lineObjs[0], lineObjs[6]),
-			new circle(4, lineObjs[1], lineObjs[6]),
-			new circle(5, lineObjs[2], lineObjs[6]),
-			new circle(6, lineObjs[3], lineObjs[6]),
-			new circle(7, lineObjs[5], lineObjs[6]),
-
-			new circle(8, lineObjs[4], lineObjs[7]),
-			new circle(9, lineObjs[0], lineObjs[7]),
-			new circle(10, lineObjs[1], lineObjs[7]),
-			new circle(11, lineObjs[2], lineObjs[7]),
-			new circle(12, lineObjs[3], lineObjs[7]),
-			new circle(13, lineObjs[5], lineObjs[7]),
-
-			new circle(14, lineObjs[4], lineObjs[8]),
-			new circle(15, lineObjs[0], lineObjs[8]),
-			new circle(16, lineObjs[1], lineObjs[8]),
-			new circle(17, lineObjs[2], lineObjs[8]),
-			new circle(18, lineObjs[3], lineObjs[8]),
-			new circle(19, lineObjs[5], lineObjs[8]),
-
-			new circle(20, lineObjs[0], lineObjs[9]),
-			new circle(21, lineObjs[1], lineObjs[9]),
-			new circle(22, lineObjs[2], lineObjs[9]),
-			new circle(23, lineObjs[3], lineObjs[9])
-		]
-
-		$.when(initLineDraw()).then(function() {
-			$.when(drawCircle()).then(function() {
-
-			})
-		})	
-
-		function isMobile() {
-			if( navigator.userAgent.match(/Android/i)
-			 || navigator.userAgent.match(/webOS/i)
-			 || navigator.userAgent.match(/iPhone/i)
-			 || navigator.userAgent.match(/iPad/i)
-			 || navigator.userAgent.match(/iPod/i)
-			 || navigator.userAgent.match(/BlackBerry/i)
-			 || navigator.userAgent.match(/Windows Phone/i)
-			 ){
-			    return true;
-			}
-			 else {
-			    return false;
-			}
-		}
-	}
-});
-
 var game = (function(){
-	this.init = function(){
+	this.gameId = '';
+	this.type = ''
+	var th = this;
+	var started = false;
+	this.init = () => {
 		// var playerBoardObj = new playerBoard();
 		lambtigerObj = new lambtiger();
-		var th = this; 
-		var started = false;
 
 		//timer routine
 		var time = 300;
@@ -244,7 +14,7 @@ var game = (function(){
 			time--;
 			$('.timer .min').html(Math.floor(time/60));
 			$('.timer .sec').html(time%60);
-			if(time == 0) clearInterval(timer);	
+			if(time == 0) clearInterval(timer);
 		}
 		timer = setInterval(timefn, 1000);
 
@@ -254,11 +24,15 @@ var game = (function(){
 			$(this).data('position',iteratePos++);
 		});
 
-		$('#information .start').click(function(){
-			start();
+		$('#buttonsHld .start').click(function(){
+			th.start();
 		})
 
-		$('#information .reset').click(function(){
+		$('#buttonsHld .startonline').click(function() {
+			startOnline();
+		})
+
+		$('#buttonsHld .reset').click(function(){
 			reset();
 		})
 
@@ -279,640 +53,161 @@ var game = (function(){
 
 		//listener for move tiger
 		$('#board .eleHld:not(.tiger):not(.lamb)').click(function(e){
-			if(!started || lambtigerObj.isLambTurn() || $(this).hasClass('tiger') || $(this).hasClass('lamb')) return;	
-			var position = getPosition($(this));
-			var selectedObj = $('#board .eleHld.selectedTiger');//get the selected lamb
-			if(selectedObj.length == 0) return;
-			var currPosition = getPosition(selectedObj);
-			var eatenLambPosition = lambtigerObj.moveTiger(currPosition, position);
-			if(eatenLambPosition === false){
-				e.stopPropagation();
-			}
-			else{
-				$('.eleNo_'+currPosition).removeClass('tiger selectedTiger');
-				$('.eleNo_'+position).addClass('tiger');
-				if(eatenLambPosition !== true){//not true means it is a position of the eaten lamb position
-					$('.eleNo_'+eatenLambPosition).removeClass('lamb').addClass('deadlamb');
-					updateDeadLambCount();
-
-					if(lambtigerObj.deadLambCount() >= 5) started = false;
-					showMessage('lambdead',function(){
-						$('.eleNo_'+eatenLambPosition).removeClass('deadlamb');
-						if(lambtigerObj.deadLambCount() >= 5) showMessage('tigerwin');
-					});
-				}
-			}
+			if(!started || lambtigerObj.isLambTurn() || $(this).hasClass('tiger') || $(this).hasClass('lamb')) return;
+			// if online game and the type is lamb return
+			if (th.gameId && th.type == 'lamb') return;
+			moveTiger($(this), e);
 		});
 
 		//listener for add lamb and move lamb
 		$('#board .eleHld:not(.lamb):not(.tiger)').click(function(e){
-			if(!started || !lambtigerObj.isLambTurn() || $(this).hasClass('lamb') || $(this).hasClass('tiger')) return;	
-			var position = getPosition($(this));
-			//add lamb here if there is still some lambs
-			if((lambtigerObj.getLambs().length) < lambtigerObj.maxLamb()){
-				if(lambtigerObj.addLamb(position)){
-					$(this).addClass('lamb').removeClass('deadlamb');
-					updateLambCount();
+			if(!started || !lambtigerObj.isLambTurn() || $(this).hasClass('lamb') || $(this).hasClass('tiger')) return;
+			// if online game and the type is tiger return
+			if (th.gameId && th.type == 'tiger') return;
+			moveLamb($(this));
+		});
+
+	};
+
+	//get the data position
+	var getPosition = (obj) => {
+		return obj.data('position');
+	};
+
+	var updateLambCount = () => {
+		$('#information .infounit.lamb .count').html(lambtigerObj.maxLamb() - lambtigerObj.getLambs().length);
+	}
+
+	var updateDeadLambCount = () => {
+		$('#information .infounit.deadlamb .count').html(lambtigerObj.deadLambCount());
+	}
+
+	var updateMessage = () => {
+		$('#information .infounit.deadlamb .count').html(lambtigerObj.deadLambCount());
+	}
+
+	var showMessage = (classname,callback) => {
+		$('#information .'+classname).show();
+		if(classname == 'lambdead')
+			$('#information .'+classname).fadeOut(2000,function(){
+				if(typeof callback == 'function'){
+					callback();
 				}
+			});
+	}
+
+	//game initiator
+	this.start = () => {
+		$('.page').addClass('live');
+		playerBoardObj.draw();
+		var tigerPos = [1,4,5];
+		for(var index=0; index<tigerPos.length; index++){
+			if(lambtigerObj.addTiger(tigerPos[index]))
+				$('.eleNo_'+tigerPos[index]).addClass('tiger');
+		}
+		updateLambCount();
+		updateDeadLambCount();
+
+		started = true;
+	};
+
+	var startOnline = (data) => {
+		servicesObj.startGame().then( data => {
+			// establish websocket here
+			// start the game
+			th.gameId = data.id;
+			th.type = data.playertype;
+			socketListener.create(th.gameId);
+		})
+	}
+
+	var reset = () => {
+		lambtigerObj = new lambtiger();
+		$('#board .eleHld').removeClass('tiger lamb deadlamb selectedTiger selectedLamb');
+		$('.page').removeClass('live');
+		started = false;
+		$('#information').find('.lambdead,.tigerwin,.lambwin').hide();
+		$(playerBoardHld).find('.eleHld').css({display: 'none'});
+		if (th.gameId) {
+			// close the socket
+			socketListener.close();
+			th.gameId = '';
+			th.type = '';
+		}
+	}
+
+	this.socketMessage = (data) => {
+		console.log("socket message", data);
+		var fn = data.type == 'lamb' ? moveLamb : moveTiger;
+		if (data.prevPosition) {
+				// fn($('#board .eleHld.eleNo_'+data.prevPosition));
+				$('#board .eleHld.eleNo_'+data.prevPosition).trigger('click');
+		}
+		if (data.position) {
+				fn($('#board .eleHld.eleNo_'+data.position));
+				// $('#board .eleHld.eleNo_'+data.position).trigger('click');
+		}
+	}
+
+	var moveTiger = (obj, e) => {
+		var position = getPosition(obj);
+		var selectedObj = $('#board .eleHld.selectedTiger');//get the selected lamb
+		if(selectedObj.length == 0) return;
+		var currPosition = getPosition(selectedObj);
+		var eatenLambPosition = lambtigerObj.moveTiger(currPosition, position);
+		if(eatenLambPosition === false && e){
+			e.stopPropagation();
+		}
+		else{
+			$('.eleNo_'+currPosition).removeClass('tiger selectedTiger');
+			$('.eleNo_'+position).addClass('tiger');
+			if(eatenLambPosition !== true){//not true means it is a position of the eaten lamb position
+				$('.eleNo_'+eatenLambPosition).removeClass('lamb').addClass('deadlamb');
+				updateDeadLambCount();
+
+				if(lambtigerObj.deadLambCount() >= 5) started = false;
+				showMessage('lambdead',function(){
+					$('.eleNo_'+eatenLambPosition).removeClass('deadlamb');
+					if(lambtigerObj.deadLambCount() >= 5) showMessage('tigerwin');
+				});
 			}
-			//move the lamb
-			else{
-				var selectedObj = $('#board .eleHld.selectedLamb');//get the selected lamb
-				if(selectedObj.length == 0) return;
-				var currPosition = getPosition(selectedObj);
-				if(lambtigerObj.moveLamb(currPosition, position)){
-					$('.eleNo_'+currPosition).removeClass('lamb selectedLamb');
-					$('.eleNo_'+position).addClass('lamb');
-				}
-				
-				e.stopPropagation();
+		}
+	}
+
+	var moveLamb = (obj) => {
+		var position = getPosition(obj);
+		//add lamb here if there is still some lambs
+		if((lambtigerObj.getLambs().length) < lambtigerObj.maxLamb()){
+			if(lambtigerObj.addLamb(position)){
+				obj.addClass('lamb').removeClass('deadlamb');
+				updateLambCount();
+			}
+		}
+		//move the lamb
+		else{
+			var selectedObj = $('#board .eleHld.selectedLamb');//get the selected lamb
+			if(selectedObj.length == 0) return;
+			var currPosition = getPosition(selectedObj);
+			if(lambtigerObj.moveLamb(currPosition, position)){
+				$('.eleNo_'+currPosition).removeClass('lamb selectedLamb');
+				$('.eleNo_'+position).addClass('lamb');
 			}
 
+			e.stopPropagation();
+		}
+
+		// it represents the online game
+		if (!th.gameId){
 			//get the tiger to move
 			var data = lambtigerObj.getTigerMove();
 			if(data){
-				setTimeout(function(){ 
+				setTimeout(function(){
 					$('#board .eleHld.eleNo_'+data[0]).trigger('click');
 					$('#board .eleHld.eleNo_'+data[1]).trigger('click');
-				}, 1000);	
+				}, 1000);
 			}
 			else
 				showMessage('lambwin');
-			
-			
-		});
-
-		//get the data position
-		var getPosition = function(obj){
-			return obj.data('position');
-		};
-
-		var updateLambCount = function(){
-			$('#information .infounit.lamb .count').html(lambtigerObj.maxLamb() - lambtigerObj.getLambs().length);
 		}
-
-		var updateDeadLambCount = function(){
-			$('#information .infounit.deadlamb .count').html(lambtigerObj.deadLambCount());	
-		}
-
-		var updateMessage = function(){
-			$('#information .infounit.deadlamb .count').html(lambtigerObj.deadLambCount());	
-		}
-
-		var showMessage = function(classname,callback){
-			$('#information .'+classname).show();
-			if(classname == 'lambdead')
-				$('#information .'+classname).fadeOut(2000,function(){
-					if(typeof callback == 'function'){
-						callback();
-					}
-				});
-		}
-
-		//game initiator
-		var start = function(){
-			$('.page').addClass('live');
-			playerBoardObj.draw();
-			var tigerPos = [1,4,5];
-			for(var index=0; index<tigerPos.length; index++){
-				if(lambtigerObj.addTiger(tigerPos[index]))
-					$('.eleNo_'+tigerPos[index]).addClass('tiger');
-			}
-			updateLambCount();
-			updateDeadLambCount();
-			
-			started = true;
-		};
-
-		var reset = function(){
-			lambtigerObj = new lambtiger();
-			$('#board .eleHld').removeClass('tiger lamb deadlamb selectedTiger selectedLamb');
-			$('.page').removeClass('live');
-			started = false;
-			$('#information').find('.lambdead,.tigerwin,.lambwin').hide();
-			$(playerBoardHld).find('.eleHld').css({display: 'none'});
-		}
-
-	};
-});
-//object holding the information about the game
-var lambtiger = (function(){
-	var tigerCount = 3;//max tiger count
-	var lambCount = 15;//max lamb count
-	var placeCount = 23;//total positions
-	var hElements = [[1],[2,3,4,5,6,7],[8,9,10,11,12,13],[14,15,16,17,18,19],[20,21,22,23]];//pattern for rows
-	var vElements = [[2,8,14],[1,3,9,15,20],[1,4,10,16,21],[1,5,11,17,22],[1,6,12,18,23],[7,13,19]];//pattern for columns
-
-	var tigers = new Array();
-	var lambs = new Array();
-	var deadlambscount = 0;
-	var lambTurn = true;
-
-	//add the tiger to the position
-	this.addTiger = function(position){
-		//check the tiger count within the limit
-		if(tigers.length >= tigerCount){
-			gameLog('Tiger count reaches the limit');
-		}
-		//check whether no other tiger or lamb in that position
-		else if(isTigerExists(position)){
-			gameLog('Tiger Exists at location '+position);
-		}
-		else if(isLambExists(position)){
-			gameLog('Lamb Exists at location '+position);
-		}
-		else{
-			tigers.push(new tiger(position));
-			gameLog('Tiger added at position '+position);
-			return true;
-		}
-		return false;
-	};
-
-	//add the lamb to the position
-	this.addLamb = function(position){
-		//check the lamb count within the limit
-		if((lambs.length) >= lambCount){
-			gameLog('Lamb count reaches the limit');
-		}
-		//check whether no other tiger or lamb in that position
-		else if(isTigerExists(position)){
-			gameLog('Tiger Exists at location '+position);
-		}
-		else if(isLambExists(position)){
-			gameLog('Lamb Exists at location '+position);
-		}
-		else{
-			lambs.push(new lamb(position));
-			gameLog('Lamb added at position '+position);
-			lambTurn = false;//set the flag that it is a tiger turn
-			return true;
-		}
-		return false;
-	};
-
-	//move the lamb to the requested position
-	//check that is the valid position
-	this.moveLamb = function(currPosition, position){
-		var moved = false;
-		//check whether no other tiger or lamb in that position
-		if(isTigerExists(position)){
-			gameLog('Tiger Exists at location '+position);
-		}
-		else if(isLambExists(position)){
-			gameLog('Lamb Exists at location '+position);
-		}
-		else{
-			var validMove = false;
-			//check valid in horizontal movement or vertical movement
-			validMove = hElements.filter(function(arr){
-				//check valid in horizontal movement
-				var currIndex = arr.indexOf(currPosition);//get the current position index
-				var nextIndex = arr.indexOf(position);//get the next position index
-				if(currIndex != -1 && nextIndex != -1){//if exist
-					return currIndex+1 == nextIndex || currIndex-1 == nextIndex;//check the next index is next or prev to current index
-				}
-			}).length > 0  
-			//check valid in vertical movement
-			|| 	vElements.filter(function(arr){
-				var currIndex = arr.indexOf(currPosition);
-				var nextIndex = arr.indexOf(position);
-				if(currIndex != -1 && nextIndex != -1){
-					return currIndex+1 == nextIndex || currIndex-1 == nextIndex;
-				}
-			}).length > 0;
-			if(validMove){
-				lambs.filter(function(lamb,index){
-					//filter out the array of lambs and change the position
-					if(lamb.getPosition() == currPosition){
-						lambs[index].setPosition(position);
-						moved = true;//set the flag as moved once done
-						lambTurn = false;//set the flag for tiger turn
-					}
-				});
-			}
-			else
-				gameLog('Invalid Lamb Move');
-			
-			if(moved)
-				gameLog('Lamb position changed from '+currPosition+ ' to '+ position);
-			else
-				gameLog('Lamb position not changed from '+currPosition+ ' to '+ position);
-		}
-		return moved;
-	};
-
-	//move the tiger to the requested position
-	//check that is the valid position
-	//check whether there is any eatable goat
-	this.moveTiger = function(currPosition, position){
-		var moved = false;
-		var eatenLamb = false;
-
-		//check whether no other tiger or lamb in that position
-		if(isTigerExists(position)){
-			gameLog('Tiger Exists at location '+position);
-		}
-		else if(isLambExists(position)){
-			gameLog('Lamb Exists at location '+position);
-		}
-		else{
-			var validMove = false;
-			//check valid in horizontal movement or vertical movement
-			validMove = hElements.filter(function(arr){
-				//check valid in horizontal movement
-				var currIndex = arr.indexOf(currPosition);//get the current position index
-				var nextIndex = arr.indexOf(position);//get the next position index
-				if(currIndex != -1 && nextIndex != -1){//if exist
-					//check for normal move
-					if(currIndex+1 == nextIndex || currIndex-1 == nextIndex)//check the next index is next or prev to current index							}
-						return true;
-					//check for eating the lamb
-					else{
-						eatenLamb = isLambAvailToEat(arr, currIndex, nextIndex);
-						return true;
-					}
-				}
-			}).length > 0  
-			//check valid in vertical movement
-			|| 	vElements.filter(function(arr){
-				var currIndex = arr.indexOf(currPosition);
-				var nextIndex = arr.indexOf(position);
-				if(currIndex != -1 && nextIndex != -1){
-					//check for normal move
-					if(currIndex+1 == nextIndex || currIndex-1 == nextIndex)
-						return true;
-					//check for eating the lamb
-					else{
-						eatenLamb = isLambAvailToEat(arr, currIndex, nextIndex);
-						return true;
-					}
-				}
-			}).length > 0;
-			if(validMove){
-				tigers.filter(function(tiger,index){
-					//filter out the array of tigers and change the position
-					if(tiger.getPosition() == currPosition){
-						tigers[index].setPosition(position);
-						moved = true;//set the flag as moved once done
-						lambTurn = true;//set the flag for lamb turn
-					}
-				});
-			}
-			else
-				gameLog('Invalid Tiger Move');		
-			
-			if(moved)
-			{
-				gameLog('Tiger position changed from '+currPosition+ ' to '+ position);
-				if(eatenLamb) return eatLamb(eatenLamb);
-			}
-			else
-				gameLog('Tiger position not changed from '+currPosition+ ' to '+ position);
-		}
-		return moved;
-	};
-
-	//eat the lamb
-	//return the position of the eaten lamb
-	var eatLamb = function(eatenLamb){
-		if(eatenLamb){
-			//eat the lamb
-			eatenLambPosition = eatenLamb.getPosition();
-			gameLog('Lamb eaten at position '+eatenLambPosition);
-			deadlambscount++;
-			//identify the position of lamb to eaten
-			var eatenLambIndex;
-			var eatenLambs = lambs.filter(function(lamb, index){
-				if(lamb.getPosition() == eatenLambPosition){
-					eatenLambIndex = index;
-					lambs[index].setPosition(-1);//set the poition as eaten
-					return true;
-				}
-			});
-
-			return eatenLambPosition;
-		}
-	}
-
-	/*********PRIVATE FUNCTIONS********/
-	//check whether the lamb is available
-	//checking the current index is 2 index lesser than or equal to next index
-	//and get the available lamb for eating
-	var isLambAvailToEat = function(arr, currIndex, nextIndex){
-		var eatenLamb = false;
-		//check lamb exists at next position
-		if(currIndex+2 == nextIndex){
-			eatenLamb = getLambByPosition(arr[currIndex+1]);
-			gameLog('Lamb for lunch is available at previous position');
-		}
-		//check lamb exists at next position
-		else if(currIndex-2 == nextIndex){
-			eatenLamb = getLambByPosition(arr[currIndex-1]);
-			gameLog('Lamb for lunch is available at next position');
-		}
-		return eatenLamb;
-	}
-	//TODO:CALCULATION FOR TIGER MOVE
-	this.getTigerMove = function(){
-		//calculate the favourable move for the tiger
-		//return current position and next position
-		var tiger, index;
-		var keys = Object.keys(lambtigerObj.getTigers());
-		shuffle(keys);//shuffle the tigers
-		for(var index=0;index<keys.length;index++){
-			//check if any lamb can available 
-			tiger = tigers[keys[index]];
-			var lambMovePosition = favLambForTiger(tiger);
-			//if the lamb list is available
-			//return the lamb at first index
-			if(lambMovePosition.length) {
-				gameLog('Favourite Lamb for tiger at position '+tiger.getPosition()+' exist so move to position '+lambMovePosition);
-				return [tiger.getPosition(),lambMovePosition[0]];
-			}
-		}
-
-		gameLog('Search favourite lamb at next move');
-		//else move the tiger to the next position and check whether any goat available on that position
-		shuffle(keys);
-
-		var nextPositionAvailLambsCount = 0;//count of available lamb to eat on next move
-		var nextPosition, fromPosition;//next move position, from position
-		for(var index=0;index<keys.length;index++){
-			//check if any lamb can dead in first move of the tiger
-			tiger = tigers[keys[index]];
-			var originalPosition = tiger.getPosition();
-			gameLog('Analyse for tiger at position '+originalPosition);
-			gameLog('AvailPositions:::');
-			//get the available positions
-			var availPositions = getAvailPositions(tiger.getPosition());
-			gameLog(availPositions);
-			for(var positionIndex=0;positionIndex<availPositions.length;positionIndex++){
-				var next = availPositions[positionIndex];
-				//NOTE: SETTING THE POSITION FOR BELOW TIGER VARIABLE REFLECTED IN THE GLOBAL VARIBALE TIGERS
-				tiger.setPosition(next);//move the tiger to the next position and check any favourite lamb exists
-				for(var nextIndex=0;nextIndex<keys.length;nextIndex++){
-					var lambMovePosition = favLambForTiger(tigers[keys[nextIndex]]);
-					if(lambMovePosition.length) {
-						// return [originalPosition,next];//return the current position and next position
-						if(lambMovePosition.length > nextPositionAvailLambsCount)
-						{
-							nextPositionAvailLambsCount = lambMovePosition.length;
-							nextPosition = next;
-							fromPosition = originalPosition;
-						} 
-					}
-				}	
-				//once again reset to the original position
-				tiger.setPosition(originalPosition);
-			}
-		}
-		if(nextPosition){//
-			gameLog('Total ' +nextPositionAvailLambsCount+' Favourite Lamb for tiger at position '+fromPosition+' occurs on next move so move to position '+nextPosition);
-			return [fromPosition,nextPosition];
-		}
-		gameLog('No favourite lamb available:::Going for favourite move');
-		//TODO: check if the tiger has three or two or one movement positions after this move 
-		//get the available position to move
-		shuffle(keys);
-		
-		var nextPositionMovePossibilitiesCount = 0;
-		var fromPosition, nextPosition;
-		for(var index=0;index<keys.length;index++){
-			tiger = tigers[keys[index]];
-			var originalPosition = tiger.getPosition();
-			var availPositions = getAvailPositions(tiger.getPosition());
-			gameLog('Analyse favourite move for tiger at position '+originalPosition);
-			for(var positionIndex=0;positionIndex<availPositions.length;positionIndex++){
-				var next = availPositions[positionIndex];
-				//NOTE: SETTING THE POSITION FOR BELOW TIGER VARIABLE REFLECTED IN THE GLOBAL VARIBALE TIGERS
-				tiger.setPosition(next);//move the tiger to the next position and check any favourite lamb exists
-				
-				//get the avail position on next move
-				//and return the tiger with max moves after the next move
-				var nextAvailPositions = getAvailPositions(tiger.getPosition());
-				if(nextAvailPositions.length && nextAvailPositions.length > nextPositionMovePossibilitiesCount){
-					nextPositionMovePossibilitiesCount = nextAvailPositions.length;
-					nextPosition = next;
-					fromPosition = originalPosition;
-				}
-				//once again reset to the original position	
-				tiger.setPosition(originalPosition);
-			}
-		}
-		if(nextPosition){
-			gameLog('Total ' +nextPositionMovePossibilitiesCount+' Moves for tiger at position '+fromPosition+' occurs on next move so move to position '+nextPosition);
-			return [fromPosition,nextPosition];
-		}
-		
-		return false;		
-	};
-
-	//get the favourite lamb for the tiger
-	var favLambForTiger = function(tiger){
-		var position = tiger.getPosition();
-
-		var positionIndex;
-		var lamb = false;
-
-		var favLambList = [];//collect the available favourite lamb in this object
-		//check in the horizontal array if any lamb is available
-		for(var index=0;index<hElements.length;index++){
-			var analyseArr = hElements[index];
-			positionIndex = analyseArr.indexOf(position);
-			if(positionIndex != -1){
-				//check the previous and its previous position exists in the array
-				//and previous of previous is empty
-				//and check lamb exists in the previous
-				if(analyseArr[positionIndex-1] != undefined 
-					&& analyseArr[positionIndex-2] != undefined && isEmptyPosition(analyseArr[positionIndex-2])) {
-					lamb = getLambByPosition(analyseArr[positionIndex-1]);
-					if(lamb) favLambList.push(analyseArr[positionIndex-2]);
-				}
-				//check the next  and its next position exists in the array
-				//and check lamb exists in the next
-				//and next of next is empty
-				if(analyseArr[positionIndex+1] != undefined 
-					&& analyseArr[positionIndex+2] != undefined && isEmptyPosition(analyseArr[positionIndex+2])) {
-					lamb = getLambByPosition(analyseArr[positionIndex+1]);
-					if(lamb) favLambList.push(analyseArr[positionIndex+2]);
-				}
-			} 
-		}
-		//check in the vertical array if any lamb is available
-		for(var index=0;index<vElements.length;index++){
-			var analyseArr = vElements[index];
-			positionIndex = analyseArr.indexOf(position);
-			if(positionIndex != -1){
-				//check the previous  and its previous position exists in the array
-				//and check lamb exists in the previous
-				//and previous of previous is empty
-				if(analyseArr[positionIndex-1] != undefined 
-					&& analyseArr[positionIndex-2] != undefined && isEmptyPosition(analyseArr[positionIndex-2])) {
-					lamb = getLambByPosition(analyseArr[positionIndex-1]);
-					if(lamb) favLambList.push(analyseArr[positionIndex-2]);	
-				}
-				//check the next  and its next position exists in the array
-				//and check lamb exists in the next
-				//and next of next is empty
-				if(analyseArr[positionIndex+1] != undefined 
-					&& analyseArr[positionIndex+2] != undefined && isEmptyPosition(analyseArr[positionIndex+2])) {
-					lamb = getLambByPosition(analyseArr[positionIndex+1]);
-					if(lamb) favLambList.push(analyseArr[positionIndex+2]);	
-				}
-			} 
-		}
-		if(favLambList.length) return favLambList;
-		return false;
-	}
-
-	//returns horizontal and vertical position available next to the given position
-	var hvPositions = function(position){
-		var positionIndex;
-		var hArr = [],vArr = [];
-		//get the horizontal array in which the requested tiger position exists
-		for(var index=0;index<hElements.length;index++){
-			var analyseArr = hElements[index];
-			positionIndex = analyseArr.indexOf(position);
-			if(positionIndex != -1){
-				if(analyseArr[positionIndex-1] != undefined) hArr.push(analyseArr[positionIndex-1]);
-				if(analyseArr[positionIndex+1] != undefined) hArr.push(analyseArr[positionIndex+1]);
-			} 
-		}
-		//get the vertical array in which the requested tiger position exists
-		for(var index=0;index<vElements.length;index++){
-			var analyseArr = vElements[index];
-			positionIndex = analyseArr.indexOf(position);
-			if(positionIndex != -1){
-				if(analyseArr[positionIndex-1] != undefined) vArr.push(analyseArr[positionIndex-1]);
-				if(analyseArr[positionIndex+1] != undefined) vArr.push(analyseArr[positionIndex+1]);
-			} 
-		}
-		return [hArr,vArr];
-	}
-	//get the next and previous position from given array based on the index
-	var getImmediatePositions = function(position){
-		var arr = [];
-		var returnData = hvPositions(position);
-		return arr.concat(returnData[0], returnData[1]);
-	}
-	//get the availablePositions to move
-	var getAvailPositions = function(position){
-		var immediatePositions = getImmediatePositions(position);
-		var availPositions = [];
-		for(var index=0;index<immediatePositions.length;index++){
-			if(isEmptyPosition(immediatePositions[index])) availPositions.push(immediatePositions[index]);
-		}
-		return availPositions;
-	}
-	//check any other tiger exists at this position
-	var isTigerExists = function(position){
-		return tigers.filter(function(tiger){
-			return tiger.getPosition() == position;
-		}).length > 0;
-	};
-	//check any other lamb exists at this position
-	var isLambExists = function(position){
-		return lambs.filter(function(lamb){
-			return lamb.getPosition() == position;
-		}).length > 0;
-	}
-	//check the position is empty
-	var isEmptyPosition = function(position){
-		return !isTigerExists(position) && !isLambExists(position);
-	}
-	//get the tigerObj by position
-	var getTigerByPosition = function(position){
-		var lists = tigers.filter(function(tiger){
-			return tiger.getPosition() == position;
-		});
-
-		if(lists.length > 0) return lists[0];
-		return false;
-	};
-	//get the lambObj by position
-	var getLambByPosition = function(position){
-		var lists = lambs.filter(function(lamb){
-			return lamb.getPosition() == position;
-		});
-		if(lists.length > 0) return lists[0];
-		return false;
-	};
-
-	/**********GETTER FUNCTIONS********/
-	this.getTigers = function(){
-		return tigers;
-	}
-	this.getLambs = function(){
-		return lambs;
-	}
-
-	this.maxTiger = function(){
-		return tigerCount;
-	}
-
-	this.maxLamb = function(){
-		return lambCount;
-	}
-
-	this.deadLambCount = function(){
-		return deadlambscount;
-	}
-
-	this.isLambTurn = function(){
-		return lambTurn;
 	}
 });
-
-var tiger = (function(pos){
-	var position = pos;
-
-	this.setPosition = function(pos){
-		position = pos;
-
-	};
-
-	this.getPosition = function(){
-		return position;
-	}
-});
-
-var lamb = (function(pos){
-	var position = pos;
-
-	this.setPosition = function(pos){
-		position = pos;
-
-	};
-
-	this.getPosition = function(){
-		return position;
-	}
-});
-
-function gameLog(log){
-	console.log(log);
-}
-
-function random(max){
-	return Math.floor((Math.random() * max) + 1);
-}
-
-function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex ;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
-}
