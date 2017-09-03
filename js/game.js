@@ -1,6 +1,8 @@
 var game = (function(){
 	this.gameId = '';
-	this.type = ''
+	this.type = '';
+	this.lambname = '';
+	this.tigername = '';
 	var th = this;
 	var started = false;
 	this.init = () => {
@@ -88,6 +90,10 @@ var game = (function(){
 
 	var showMessage = (classname,callback) => {
 		$('#information .'+classname).show();
+
+		if (classname != 'lambdead') {
+			updatePlayerState('');
+		}
 		if(classname == 'lambdead')
 			$('#information .'+classname).fadeOut(2000,function(){
 				if(typeof callback == 'function'){
@@ -96,6 +102,56 @@ var game = (function(){
 			});
 	}
 
+	var updatePlayerName = (reset) => {
+		if (reset) {
+			$('#playerState div .name').html('');
+			return 
+		}
+		// if gameId exists get the game and user information online
+		if (this.gameId) {
+			if (!this.lambname || !this.tigername) {
+				servicesObj.getGame(this.gameId).then((data) => {
+					if (!this.tigername && data.player1id) {
+						servicesObj.getUser(data.player1id).then(data => {
+							this.tigername = data.userName;
+							$('#playerState .tiger .name').html(this.tigername);
+						})
+					}
+					if (!this.lambname && data.player2id) {
+						servicesObj.getUser(data.player2id).then(data => {
+							this.lambname = data.userName;
+							$('#playerState .lamb .name').html(this.lambname);
+						})
+					}
+				})
+			}
+		} else {
+			// update the current user name 
+			servicesObj.getUser().then((data) => {
+				this.lambname = data.userName;
+				this.tigername = 'Tiger';
+				$('#playerState .lamb .name').html(this.lambname);
+				$('#playerState .tiger .name').html(this.tigername);
+			})
+		}
+	}
+
+	var updatePlayerState = (player) => {
+
+		// if (this.gameId) {
+		// 	updatePlayerName();
+		// }
+		
+		if (player == 'tiger') {
+			$('#playerState .tiger').addClass('active');
+			$('#playerState .lamb').removeClass('active');
+		} else if (player == 'lamb') {
+			$('#playerState .lamb').addClass('active');
+			$('#playerState .tiger').removeClass('active');
+		} else {
+			$('#playerState .lamb, #playerState .tiger').removeClass('active');
+		}
+	}
 	//game initiator
 	this.start = () => {
 		$('.page').addClass('live');
@@ -109,6 +165,8 @@ var game = (function(){
 		updateDeadLambCount();
 
 		started = true;
+		updatePlayerState('lamb');
+		updatePlayerName();
 	};
 
 	var startOnline = (data) => {
@@ -133,7 +191,11 @@ var game = (function(){
 			socketListener.close();
 			th.gameId = '';
 			th.type = '';
+			th.lambname = '';
+			th.tigername = '';
 		}
+		updatePlayerState('');
+		updatePlayerName(true);
 	}
 
 	this.socketMessage = (data) => {
@@ -159,6 +221,9 @@ var game = (function(){
 			e.stopPropagation();
 		}
 		else{
+			updatePlayerState('lamb');
+			updatePlayerName();
+
 			$('.eleNo_'+currPosition).removeClass('tiger selectedTiger');
 			$('.eleNo_'+position).addClass('tiger');
 			if(eatenLambPosition !== true){//not true means it is a position of the eaten lamb position
@@ -199,6 +264,9 @@ var game = (function(){
 
 		}
 
+		updatePlayerState('tiger');
+		updatePlayerName();
+
 		// it represents the online game
 		if (!th.gameId){
 			//get the tiger to move
@@ -209,8 +277,9 @@ var game = (function(){
 					$('#board .eleHld.eleNo_'+data[1]).trigger('click');
 				}, 1000);
 			}
-			else
+			else {
 				showMessage('lambwin');
+			}
 		}
 	}
 });

@@ -2,6 +2,10 @@ html, body, .page {
 	height: 100%;
 }
 
+body {
+	margin: 8px;
+}
+
 .hide {
 	display: none;
 }
@@ -48,6 +52,10 @@ html, body, .page {
 .wrapper{
 	width: 100%;
 	margin: 0 auto;
+}
+
+.live #rules {
+	display: none;
 }
 
 #information{
@@ -252,6 +260,67 @@ html, body, .page {
 	background-size: 30px 30px;
 	width: 30px;
 	height: 30px;
+}
+
+#playerState {
+	display: none;
+	position: absolute;
+	bottom: 20px;
+	width: calc(100% - 16px);
+}
+
+#playerState > div {
+	width: 50%;
+    float: left;
+}
+
+.live #playerState {
+	display: block;
+}
+
+#playerState div .image{
+	width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-size: 40px 40px;
+}
+
+#playerState div.active span{
+	animation: blink-animation 1s steps(5, start) infinite;
+  -webkit-animation: blink-animation 1s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+
+#playerState .tiger .image{
+    float: left;
+    background :url('../images/tiger.png') no-repeat;
+    background-size: 40px 40px;
+}
+
+#playerState .lamb .image{
+    float: right;
+    background :url('../images/lamb.png') no-repeat;
+	background-size: 40px 40px;
+}
+
+#playerState .tiger .name{
+	float: left;
+	padding: 10px;
+}
+
+#playerState .lamb .name{
+	float: right;
+	padding: 10px;
 }
 
 @media (min-width:961px)  {
