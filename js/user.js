@@ -9,7 +9,7 @@ var user = (function() {
 			showBoard();
 		}
 
-		$('body').delegate('#userForm button', 'click', function() {
+		$('body').delegate('#userForm button', 'click', () => {
 			const name = $('#username').val();
 			if(name) {
 				servicesObj.createUser({name: name, test: 'test'}).then(data => {
