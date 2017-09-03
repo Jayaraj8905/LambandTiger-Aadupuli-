@@ -64,7 +64,7 @@ var game = (function(){
 			if(!started || !lambtigerObj.isLambTurn() || $(this).hasClass('lamb') || $(this).hasClass('tiger')) return;
 			// if online game and the type is tiger return
 			if (th.gameId && th.type == 'tiger') return;
-			moveLamb($(this));
+			moveLamb($(this), e);
 		});
 
 	};
@@ -174,7 +174,7 @@ var game = (function(){
 		}
 	}
 
-	var moveLamb = (obj) => {
+	var moveLamb = (obj, e) => {
 		var position = getPosition(obj);
 		//add lamb here if there is still some lambs
 		if((lambtigerObj.getLambs().length) < lambtigerObj.maxLamb()){
@@ -193,7 +193,10 @@ var game = (function(){
 				$('.eleNo_'+position).addClass('lamb');
 			}
 
-			e.stopPropagation();
+			if(e) {
+				e.stopPropagation();
+			}
+
 		}
 
 		// it represents the online game
