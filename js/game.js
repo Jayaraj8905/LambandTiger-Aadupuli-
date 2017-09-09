@@ -120,8 +120,11 @@ var game = (function(){
 					if (!this.lambname && data.player2id) {
 						servicesObj.getUser(data.player2id).then(data => {
 							this.lambname = data.userName;
+							$('#playerState .lamb').removeClass('waiting');
 							$('#playerState .lamb .name').html(this.lambname);
 						})
+					} else {
+						$('#playerState .lamb').addClass('waiting');
 					}
 				})
 			}
@@ -130,6 +133,7 @@ var game = (function(){
 			servicesObj.getUser().then((data) => {
 				this.lambname = data.userName;
 				this.tigername = 'Tiger';
+				$('#playerState .lamb').removeClass('waiting');
 				$('#playerState .lamb .name').html(this.lambname);
 				$('#playerState .tiger .name').html(this.tigername);
 			})
@@ -191,9 +195,9 @@ var game = (function(){
 			socketListener.close();
 			th.gameId = '';
 			th.type = '';
-			th.lambname = '';
-			th.tigername = '';
 		}
+		th.lambname = '';
+		th.tigername = '';
 		updatePlayerState('');
 		updatePlayerName(true);
 	}
@@ -225,7 +229,8 @@ var game = (function(){
 			updatePlayerName();
 
 			$('.eleNo_'+currPosition).removeClass('tiger selectedTiger');
-			$('.eleNo_'+position).addClass('tiger');
+			$('.eleHld.lastMove').removeClass('lastMove');
+			$('.eleNo_'+position).addClass('tiger lastMove');
 			if(eatenLambPosition !== true){//not true means it is a position of the eaten lamb position
 				$('.eleNo_'+eatenLambPosition).removeClass('lamb').addClass('deadlamb');
 				updateDeadLambCount();
@@ -244,7 +249,8 @@ var game = (function(){
 		//add lamb here if there is still some lambs
 		if((lambtigerObj.getLambs().length) < lambtigerObj.maxLamb()){
 			if(lambtigerObj.addLamb(position)){
-				obj.addClass('lamb').removeClass('deadlamb');
+				$('.eleHld.lastMove').removeClass('lastMove');
+				obj.addClass('lamb lastMove').removeClass('deadlamb');
 				updateLambCount();
 			}
 		}
@@ -255,7 +261,8 @@ var game = (function(){
 			var currPosition = getPosition(selectedObj);
 			if(lambtigerObj.moveLamb(currPosition, position)){
 				$('.eleNo_'+currPosition).removeClass('lamb selectedLamb');
-				$('.eleNo_'+position).addClass('lamb');
+				$('.eleHld.lastMove').removeClass('lastMove');
+				$('.eleNo_'+position).addClass('lamb lastMove');
 			}
 
 			if(e) {
