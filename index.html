@@ -22,9 +22,11 @@
 </head>
 
 <body>
+    <div id="bg"></div>
     <div class="page">
         <div id="userForm">
-          <input id="username" placeholder="Enter Gamer Id" autocomplete="off">
+          <input id="username" placeholder="Enter gamer id with minimum 5 characters" autocomplete="off">
+          <p class="error hidden">Error will show</p>
           <button id="submit">Submit</button>
         </div>
 
@@ -46,6 +48,7 @@
         <div id="buttonsHld">
             <button class="start">Single Player</button>
             <button class="startonline">Two Player</button>
+            <button class="sound"></button>
             <button class="reset">Reset</button>
         </div>
         <div class="timer wrapper"><span class="min"></span>:<span class="sec"></span></div>

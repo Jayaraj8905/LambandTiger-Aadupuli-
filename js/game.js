@@ -3,12 +3,19 @@ var game = (function(){
 	this.type = '';
 	this.lambname = '';
 	this.tigername = '';
+
 	var th = this;
 	var started = false;
+
+	var playSound = localStorage.getItem('sound') != undefined ? parseInt(localStorage.getItem('sound')) : 1;
+	var tigerSound = new Audio('sounds/tiger.mp3');
+	var lambSound = new Audio('sounds/lamb.mp3');
+	var forestSound = new Audio('sounds/forest.mp3');
 	this.init = () => {
 		// var playerBoardObj = new playerBoard();
 		lambtigerObj = new lambtiger();
 
+		updateSoundIcon();
 		//timer routine
 		var time = 300;
 		var timer;
@@ -36,6 +43,18 @@ var game = (function(){
 
 		$('#buttonsHld .reset').click(function(){
 			reset();
+		})
+
+		$('#buttonsHld .sound').click(function(){
+			playSound = !playSound;
+			if (playSound) {
+				localStorage.setItem('sound', 1);
+				playForestSound();
+			} else {
+				localStorage.setItem('sound', 0);
+				stopAllSound();
+			}
+			updateSoundIcon();
 		})
 
 		//listener for selecting tiger
@@ -69,6 +88,10 @@ var game = (function(){
 			moveLamb($(this), e);
 		});
 
+		forestSound.addEventListener("ended", function(){
+		    playForestSound();
+		});
+
 	};
 
 	//get the data position
@@ -94,6 +117,25 @@ var game = (function(){
 		if (classname != 'lambdead') {
 			updatePlayerState('');
 		}
+
+		if (classname == 'tigerwin') {
+			setTimeout(() => {
+				playTigerSound();
+			}, 1000)
+			setTimeout(() => {
+				playTigerSound();
+			}, 2000)
+		}
+
+		if (classname == 'lambwin') {
+			setTimeout(() => {
+				playLambSound();
+			}, 1000)
+			setTimeout(() => {
+				playLambSound();
+			}, 2000)
+		}
+
 		if(classname == 'lambdead')
 			$('#information .'+classname).fadeOut(2000,function(){
 				if(typeof callback == 'function'){
@@ -171,6 +213,7 @@ var game = (function(){
 		started = true;
 		updatePlayerState('lamb');
 		updatePlayerName();
+		playForestSound();
 	};
 
 	var startOnline = (data) => {
@@ -185,7 +228,7 @@ var game = (function(){
 
 	var reset = () => {
 		lambtigerObj = new lambtiger();
-		$('#board .eleHld').removeClass('tiger lamb deadlamb selectedTiger selectedLamb');
+		$('#board .eleHld').removeClass('tiger lamb deadlamb selectedTiger selectedLamb lastMove');
 		$('.page').removeClass('live');
 		started = false;
 		$('#information').find('.lambdead,.tigerwin,.lambwin').hide();
@@ -200,6 +243,7 @@ var game = (function(){
 		th.tigername = '';
 		updatePlayerState('');
 		updatePlayerName(true);
+		stopAllSound();
 	}
 
 	this.socketMessage = (data) => {
@@ -222,9 +266,11 @@ var game = (function(){
 		var currPosition = getPosition(selectedObj);
 		var eatenLambPosition = lambtigerObj.moveTiger(currPosition, position);
 		if(eatenLambPosition === false && e){
+			playTigerSound();
 			e.stopPropagation();
 		}
 		else{
+			playTigerSound();
 			updatePlayerState('lamb');
 			updatePlayerName();
 
@@ -249,6 +295,7 @@ var game = (function(){
 		//add lamb here if there is still some lambs
 		if((lambtigerObj.getLambs().length) < lambtigerObj.maxLamb()){
 			if(lambtigerObj.addLamb(position)){
+				playLambSound();
 				$('.eleHld.lastMove').removeClass('lastMove');
 				obj.addClass('lamb lastMove').removeClass('deadlamb');
 				updateLambCount();
@@ -260,6 +307,7 @@ var game = (function(){
 			if(selectedObj.length == 0) return;
 			var currPosition = getPosition(selectedObj);
 			if(lambtigerObj.moveLamb(currPosition, position)){
+				playLambSound();
 				$('.eleNo_'+currPosition).removeClass('lamb selectedLamb');
 				$('.eleHld.lastMove').removeClass('lastMove');
 				$('.eleNo_'+position).addClass('lamb lastMove');
@@ -287,6 +335,44 @@ var game = (function(){
 			else {
 				showMessage('lambwin');
 			}
+		}
+	}
+
+	var playLambSound = () => {
+		playSound && lambSound.play();
+	}
+
+	var playTigerSound = () => {
+		playSound && tigerSound.play();
+	}
+
+	var playForestSound = () => {
+		playSound && forestSound.play();
+	}
+
+	var stopLambSound = () => {
+		tigerSound.pause();
+	}
+
+	var stopTigerSound = () => {
+		lambSound.pause();
+	}
+
+	var stopForestSound = () => {
+		forestSound.pause();
+	}
+
+	var stopAllSound = () => {
+		stopForestSound();	
+		stopLambSound();
+		stopTigerSound();
+	}
+
+	var updateSoundIcon = () => {
+		if (playSound) {
+			$('#buttonsHld .sound').removeClass('stop');
+		} else {
+			$('#buttonsHld .sound').addClass('stop');
 		}
 	}
 });

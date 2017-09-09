@@ -52,6 +52,20 @@ var services = (function() {
 	}
 
 	/**
+	 * Check the User Id exists or not
+	 * Promise
+	 */
+	this.isUserExists = function(name) {
+		return http.get('/api/user/list?name='+name).then((data) => {
+			if (data[0]) {
+				return true;
+			} else {
+				return false;
+			}
+		});
+	}
+
+	/**
 	 * Join the Game
 	 * @return {[type]} [description]
 	 */
