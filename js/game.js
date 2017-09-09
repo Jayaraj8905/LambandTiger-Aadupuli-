@@ -321,20 +321,20 @@ var game = (function(){
 
 		updatePlayerState('tiger');
 		updatePlayerName();
-
-		// it represents the online game
-		if (!th.gameId){
-			//get the tiger to move
-			var data = lambtigerObj.getTigerMove();
-			if(data){
+		
+		//get the tiger to move
+		var data = lambtigerObj.getTigerMove();
+		if(data){
+			// it represents the online game
+			if (!th.gameId){
 				setTimeout(function(){
 					$('#board .eleHld.eleNo_'+data[0]).trigger('click');
 					$('#board .eleHld.eleNo_'+data[1]).trigger('click');
 				}, 1000);
 			}
-			else {
-				showMessage('lambwin');
-			}
+		}
+		else {
+			showMessage('lambwin');
 		}
 	}
 
