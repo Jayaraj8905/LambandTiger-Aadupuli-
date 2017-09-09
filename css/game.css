@@ -44,6 +44,7 @@ body {
 	border: 0px;
 	border-bottom: 1px solid gray;
 	outline: none;
+	background-color: transparent;
 }
 
 #userForm .error {
