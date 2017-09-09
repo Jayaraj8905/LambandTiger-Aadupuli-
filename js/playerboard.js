@@ -125,7 +125,7 @@ var playerBoard = (function(){
 					dfd.resolve();
 				})
 			}
-		}, 20)
+		}, 50)
 		return dfd.promise();
 	}
 
